@@ -20,7 +20,8 @@ class  FollowSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
-        fields = "__all__"
+        fields = ("following", "user")
+        read_only_fields = ("user", )
         model = Follow
 
 
