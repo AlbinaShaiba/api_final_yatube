@@ -21,7 +21,7 @@ class Post(models.Model):
     image = models.ImageField(
         upload_to='posts/', null=True, blank=True)
     group = models.ForeignKey(
-        Group, on_delete=models.CASCADE)
+        Group, on_delete=models.CASCADE, null=True,  blank=True)
 
     def __str__(self):
         return self.text
@@ -44,7 +44,5 @@ class Follow(models.Model):
         User, on_delete=models.CASCADE, related_name='followers'
         )
     
-    class Meta:
-        constraints = [
-            UniqueConstraint(fields=['user', 'following'], name='following')
-        ]
+
+        

@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ValidationError
+
 from rest_framework import filters
 
 from rest_framework import viewsets
@@ -53,6 +55,4 @@ class FollowViewList(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-        
-    
 

@@ -1,5 +1,8 @@
+
+
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+from rest_framework.validators import UniqueTogetherValidator
 
 
 from posts.models import Comment, Post, Group, Follow, User
@@ -13,16 +16,26 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class  FollowSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(
+        read_only=True,
+        default = serializers.CurrentUserDefault()
+    )
     following = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all()
     )
-    user = serializers.StringRelatedField(read_only=True)
-
+    
     class Meta:
-        fields = ("following", "user")
-        read_only_fields = ("user", )
         model = Follow
+        fields = "__all__"
+        validators = [
+            UniqueTogetherValidator(fields=('following', 'user'), queryset=Follow.objects.all())
+        ]
+
+    def validate_following(self, value):
+        if value == self.context['request'].user:
+            raise serializers.ValidationError('Error')
+        return value
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -33,17 +46,20 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+    author = serializers.StringRelatedField(
+        read_only=True,
+        default = serializers.CurrentUserDefault()
     )
+    group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), required=False)
 
     class Meta:
         model = Post
         fields = ('id', 'text', 'author', 'image', 'group', 'pub_date')
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+    author = serializers.StringRelatedField(
+        read_only=True,
+        default = serializers.CurrentUserDefault()
     )
 
     class Meta:
