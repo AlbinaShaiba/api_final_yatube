@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 
 from rest_framework import filters
 
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import permissions
 
@@ -41,7 +41,9 @@ class CommentViewList(viewsets.ModelViewSet):
                         post=self.get_comment_post())
 
 
-class FollowViewList(viewsets.ModelViewSet):
+class FollowViewList(mixins.CreateModelMixin,
+                     mixins.ListModelMixin,
+                     viewsets.GenericViewSet):
     serializer_class = FollowSerializer
     filter_backends = (filters.SearchFilter, )
     permission_classes = [permissions.IsAuthenticated, ]
@@ -55,4 +57,3 @@ class FollowViewList(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
